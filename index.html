@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Photo Enhancer - Transform Low-Quality Images to HD</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --text: #2b2d42;
+            --text-light: #8d99ae;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: #f5f7ff;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo i {
+            margin-right: 10px;
+            color: var(--accent);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 30px;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        nav ul li a:hover {
+            color: var(--accent);
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 80px 0 60px;
+            text-align: center;
+            background: linear-gradient(to bottom, var(--primary), #f5f7ff 100%);
+            color: white;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 40px;
+            opacity: 0.9;
+        }
+        
+        /* Upload Section */
+        .upload-section {
+            background-color: white;
+            border-radius: 16px;
+            padding: 40px;
+            margin: -50px auto 60px;
+            max-width: 1000px;
+            box-shadow: 0 10px 30px rgba(0, 0, 139, 0.1);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .upload-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .upload-header h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .upload-header p {
+            color: var(--text-light);
+        }
+        
+        .upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 30px;
+            background-color: #f9fafb;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--accent);
+            background-color: rgba(72, 149, 239, 0.05);
+        }
+        
+        .upload-area.active {
+            border-color: var(--success);
+            background-color: rgba(76, 201, 240, 0.05);
+        }
+        
+        .upload-area i {
+            font-size: 48px;
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+        
+        .upload-area p {
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        .upload-area .file-info {
+            font-size: 14px;
+            color: var(--text-light);
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        /* Enhancement Options */
+        .enhance-options {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .option-card {
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 20px;
+            width: 160px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .option-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .option-card.selected {
+            border-color: var(--accent);
+            background-color: rgba(72, 149, 239, 0.1);
+            box-shadow: 0 5px 15px rgba(72, 149, 239, 0.2);
+        }
+        
+        .option-card i {
+            font-size: 28px;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+        
+        .option-card h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .option-card p {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn-large {
+            padding: 16px 32px;
+            font-size: 18px;
+        }
+        
+        .btn-accent {
+            background-color: var(--accent);
+        }
+        
+        .btn-accent:hover {
+            background-color: #3d82d6;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+        }
+        
+        .btn-success:hover {
+            background-color: #3db8dd;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        /* Results Section */
+        .results-section {
+            display: none;
+            padding: 60px 0;
+            background-color: #f8fafc;
+        }
+        
+        .results-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .section-header h2 {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .section-header p {
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .comparison {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .image-wrapper {
+            flex: 1;
+            min-width: 300px;
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .image-header {
+            padding: 15px 20px;
+            background-color: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .image-header h3 {
+            font-size: 18px;
+        }
+        
+        .image-container {
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .image-container img {
+            max-width: 100%;
+            max-height: 500px;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 80px 0;
+            background-color: white;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .feature-card {
+            background-color: #f8fafc;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-card i {
+            font-size: 40px;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+        
+        .feature-card h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .feature-card p {
+            color: var(--text-light);
+        }
+        
+        /* Loading State */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 60px 0;
+        }
+        
+        .loading-spinner {
+            width: 70px;
+            height: 70px;
+            border: 8px solid rgba(72, 149, 239, 0.2);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading h2 {
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .loading p {
+            color: var(--text-light);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            max-width: 400px;
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            margin: 20px auto;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(to right, var(--accent), var(--success));
+            transition: width 0.3s;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 60px 0 30px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-column h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-column ul li a {
+            color: #adb5bd;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-column ul li a:hover {
+            color: white;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .social-links a {
+            color: white;
+            font-size: 20px;
+            transition: color 0.3s;
+        }
+        
+        .social-links a:hover {
+            color: var(--accent);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid #495057;
+            color: #adb5bd;
+            font-size: 14px;
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            nav ul {
+                margin-top: 20px;
+            }
+            
+            nav ul li {
+                margin: 0 10px;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .upload-section {
+                padding: 30px 20px;
+                margin: -30px auto 40px;
+            }
+            
+            .enhance-options {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .option-card {
+                width: 100%;
+                max-width: 250px;
+            }
+            
+            .comparison {
+                flex-direction: column;
+            }
+        }
+        
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <i class="fas fa-magic"></i>
+                <span>PhotoEnhancerAI</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Features</a></li>
+                    <li><a href="#">Pricing</a></li>
+                    <li><a href="#">About</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <section class="hero">
+        <div class="container">
+            <h1>Transform Your Photos with AI Magic</h1>
+            <p>Enhance, upscale, and perfect your images with our powerful AI technology. Turn blurry, low-quality photos into stunning high-resolution masterpieces.</p>
+        </div>
+    </section>
+    
+    <section class="upload-section">
+        <div class="upload-header">
+            <h2>Enhance Your Photos Now</h2>
+            <p>Upload your image and let our AI work its magic</p>
+        </div>
+        
+        <div id="dropzone" class="upload-area">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Drag & drop your photo here</p>
+            <p class="file-info">or click to browse files (JPG, PNG up to 10MB)</p>
+            <input type="file" id="fileInput" class="file-input" accept="image/*">
+        </div>
+        
+        <div class="enhance-options">
+            <div class="option-card selected" data-type="general">
+                <i class="fas fa-star"></i>
+                <h3>General Enhancement</h3>
+                <p>Improve any type of photo</p>
+            </div>
+            <div class="option-card" data-type="portrait">
+                <i class="fas fa-user"></i>
+                <h3>Portrait</h3>
+                <p>Perfect for people photos</p>
+            </div>
+            <div class="option-card" data-type="landscape">
+                <i class="fas fa-mountain"></i>
+                <h3>Landscape</h3>
+                <p>Enhance scenery & nature</p>
+            </div>
+            <div class="option-card" data-type="old-photo">
+                <i class="fas fa-history"></i>
+                <h3>Old Photos</h3>
+                <p>Restore vintage images</p>
+            </div>
+        </div>
+        
+        <div class="btn-group">
+            <button id="enhanceBtn" class="btn btn-accent btn-large" disabled>
+                <i class="fas fa-magic"></i> Enhance Photo
+            </button>
+            <button id="sampleBtn" class="btn btn-outline">
+                Try Sample Image
+            </button>
+        </div>
+    </section>
+    
+    <section class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <h2>Enhancing Your Photo</h2>
+        <p>Our AI is working hard to transform your image. This usually takes 15-30 seconds.</p>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+    </section>
+    
+    <section class="results-section" id="results">
+        <div class="container results-container">
+            <div class="section-header">
+                <h2>Your Enhanced Results</h2>
+                <p>Compare the original image with the AI-enhanced version</p>
+            </div>
+            
+            <div class="comparison">
+                <div class="image-wrapper animate">
+                    <div class="image-header">
+                        <h3>Original Image</h3>
+                        <span class="file-size" id="originalSize"></span>
+                    </div>
+                    <div class="image-container">
+                        <img id="originalImage" src="" alt="Original Image">
+                    </div>
+                </div>
+                
+                <div class="image-wrapper animate delay-1">
+                    <div class="image-header">
+                        <h3>Enhanced Image</h3>
+                        <span class="file-size" id="enhancedSize"></span>
+                    </div>
+                    <div class="image-container">
+                        <img id="enhancedImage" src="" alt="Enhanced Image">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="btn-group">
+                <button id="downloadBtn" class="btn btn-success btn-large">
+                    <i class="fas fa-download"></i> Download Enhanced
+                </button>
+                <button id="newEnhanceBtn" class="btn btn-outline">
+                    <i class="fas fa-redo"></i> Enhance Another
+                </button>
+            </div>
+        </div>
+    </section>
+    
+    <section class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Powerful AI Photo Enhancement</h2>
+                <p>Our technology uses advanced artificial intelligence to transform your photos</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card animate">
+                    <i class="fas fa-expand"></i>
+                    <h3>Upscale Resolution</h3>
+                    <p>Increase image resolution up to 4x without losing quality</p>
+                </div>
+                
+                <div class="feature-card animate delay-1">
+                    <i class="fas fa-eye"></i>
+                    <h3>Sharpen Details</h3>
+                    <p>Bring out fine details and make blurry images crystal clear</p>
+                </div>
+                
+                <div class="feature-card animate delay-2">
+                    <i class="fas fa-sun"></i>
+                    <h3>Color Correction</h3>
+                    <p>Automatically adjust colors and lighting for perfect balance</p>
+                </div>
+                
+                <div class="feature-card animate delay-3">
+                    <i class="fas fa-user-astronaut"></i>
+                    <h3>Face Enhancement</h3>
+                    <p>Specialized AI for perfect portrait and facial details</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>PhotoEnhancerAI</h3>
+                    <p>Transforming your photos with cutting-edge AI technology since 2023.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Features</h3>
+                    <ul>
+                        <li><a href="#">Photo Enhancement</a></li>
+                        <li><a href="#">Old Photo Restoration</a></li>
+                        <li><a href="#">Portrait Retouching</a></li>
+                        <li><a href="#">Batch Processing</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Careers</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Support</h3>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; 2023 PhotoEnhancerAI. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const dropzone = document.getElementById('dropzone');
+            const fileInput = document.getElementById('fileInput');
+            const enhanceBtn = document.getElementById('enhanceBtn');
+            const sampleBtn = document.getElementById('sampleBtn');
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            const progress = document.getElementById('progress');
+            const originalImage = document.getElementById('originalImage');
+            const enhancedImage = document.getElementById('enhancedImage');
+            const originalSize = document.getElementById('originalSize');
+            const enhancedSize = document.getElementById('enhancedSize');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const newEnhanceBtn = document.getElementById('newEnhanceBtn');
+            const optionCards = document.querySelectorAll('.option-card');
+            
+            // State variables
+            let selectedFile = null;
+            let enhancementType = 'general';
+            
+            // Initialize
+            initEventListeners();
+            
+            function initEventListeners() {
+                // File selection
+                dropzone.addEventListener('click', () => fileInput.click());
+                fileInput.addEventListener('change', handleFileSelect);
+                
+                // Drag and drop
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(event => {
+                    dropzone.addEventListener(event, preventDefaults, false);
+                });
+                
+                ['dragenter', 'dragover'].forEach(event => {
+                    dropzone.addEventListener(event, highlight, false);
+                });
+                
+                ['dragleave', 'drop'].forEach(event => {
+                    dropzone.addEventListener(event, unhighlight, false);
+                });
+                
+                dropzone.addEventListener('drop', handleDrop);
+                
+                // Enhancement options
+                optionCards.forEach(card => {
+                    card.addEventListener('click', selectEnhancementOption);
+                });
+                
+                // Buttons
+                enhanceBtn.addEventListener('click', enhanceImage);
+                sampleBtn.addEventListener('click', useSampleImage);
+                downloadBtn.addEventListener('click', downloadEnhancedImage);
+                newEnhanceBtn.addEventListener('click', resetEnhancer);
+            }
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            function highlight() {
+                dropzone.classList.add('active');
+            }
+            
+            function unhighlight() {
+                dropzone.classList.remove('active');
+            }
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const file = dt.files[0];
+                handleFileSelect({ target: { files: [file] } });
+            }
+            
+            function handleFileSelect(e) {
+                const file = e.target.files[0];
+                
+                if (!file) return;
+                
+                // Validate file type
+                if (!file.type.match('image.*')) {
+                    showError('Please select an image file (JPG, PNG)');
+                    return;
+                }
+                
+                // Validate file size
+                if (file.size > 10 * 1024 * 1024) {
+                    showError('File size should be less than 10MB');
+                    return;
+                }
+                
+                selectedFile = file;
+                enhanceBtn.disabled = false;
+                
+                // Display file info
+                dropzone.querySelector('p').textContent = file.name;
+                dropzone.querySelector('.file-info').textContent = formatFileSize(file.size);
+                
+                // Display preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    originalImage.src = e.target.result;
+                    originalSize.textContent = formatFileSize(file.size);
+                };
+                reader.readAsDataURL(file);
+            }
+            
+            function selectEnhancementOption(e) {
+                optionCards.forEach(card => card.classList.remove('selected'));
+                e.currentTarget.classList.add('selected');
+                enhancementType = e.currentTarget.dataset.type;
+            }
+            
+            function enhanceImage() {
+                if (!selectedFile) return;
+                
+                // Show loading state
+                loading.style.display = 'block';
+                results.style.display = 'none';
+                
+                // Simulate progress
+                let progressValue = 0;
+                const progressInterval = setInterval(() => {
+                    progressValue += Math.random() * 10;
+                    if (progressValue >= 100) {
+                        progressValue = 100;
+                        clearInterval(progressInterval);
+                        showResults();
+                    }
+                    progress.style.width = `${progressValue}%`;
+                }, 300);
+                
+                // In a real app, you would send the image to your backend/AI service here
+                // This is just a simulation
+            }
+            
+            function showResults() {
+                loading.style.display = 'none';
+                
+                // For demo purposes, we're just using the same image
+                // In reality, you'd get the enhanced image from your AI service
+                enhancedImage.src = originalImage.src;
+                enhancedSize.textContent = "4.2 MB"; // Simulated enhanced size
+                
+                // Show results with animation
+                results.style.display = 'block';
+                document.querySelectorAll('.animate').forEach(el => {
+                    el.style.opacity = 0;
+                    el.style.transform = 'translateY(20px)';
+                });
+                
+                setTimeout(() => {
+                    document.querySelectorAll('.animate').forEach(el => {
+                        el.style.opacity = 1;
+                        el.style.transform = 'translateY(0)';
+                    });
+                }, 100);
+                
+                // Scroll to results
+                results.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            function useSampleImage() {
+                // Use a sample image for demo
+                selectedFile = { name: "sample-photo.jpg", size: 2456789 };
+                originalImage.src = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600";
+                originalSize.textContent = formatFileSize(selectedFile.size);
+                enhanceBtn.disabled = false;
+                
+                dropzone.querySelector('p').textContent = "sample-photo.jpg";
+                dropzone.querySelector('.file-info').textContent = formatFileSize(selectedFile.size);
+            }
+            
+            function downloadEnhancedImage() {
+                if (!enhancedImage.src) return;
+                
+                const link = document.createElement('a');
+                link.href = enhancedImage.src;
+                link.download = 'enhanced_' + (selectedFile?.name || 'photo.jpg');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            
+            function resetEnhancer() {
+                selectedFile = null;
+                originalImage.src = '';
+                enhancedImage.src = '';
+                originalSize.textContent = '';
+                enhancedSize.textContent = '';
+                enhanceBtn.disabled = true;
+                progress.style.width = '0';
+                
+                dropzone.querySelector('p').textContent = 'Drag & drop your photo here';
+                dropzone.querySelector('.file-info').textContent = 'or click to browse files (JPG, PNG up to 10MB)';
+                
+                results.style.display = 'none';
+            }
+            
+            function showError(message) {
+                alert(message); // In a real app, you'd show a nicer error message
+            }
+            
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+        });
+    </script>
+</body>
+</html>
